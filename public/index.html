@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubicador de Bultos</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Fuente Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container-fluid vh-100 d-flex flex-column p-3">
+        <!-- Header con ubicación actual -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="mb-3">
+                    <i class="fas fa-warehouse me-2"></i>
+                    Ubicador de Bultos
+                </h2>
+                <div id="ubicacion-actual" class="ubicacion-display d-none">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    <span id="ubicacion-texto">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensaje principal -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <div id="mensaje-principal" class="mensaje-principal">
+                    <i class="fas fa-qrcode me-2"></i>
+                    <span>Por favor escanear una ubicación para comenzar</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input de escaneo -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="input-group input-group-lg">
+                    <input 
+                        type="text" 
+                        id="scanner-input" 
+                        class="form-control text-center" 
+                        placeholder="Escanear código..." 
+                        autofocus
+                        autocomplete="off"
+                    >
+                    <button class="btn btn-outline-primary" type="button" id="camera-btn">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensajes de estado -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div id="status-message" class="status-message d-none text-center">
+                    <span id="status-text"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicador de conexión -->
+        <div class="row mt-auto">
+            <div class="col-12 text-center">
+                <div id="connection-status" class="connection-status">
+                    <i class="fas fa-wifi me-2"></i>
+                    <span>Conectado</span>
+                </div>
+                <button id="retry-btn" class="btn btn-warning d-none mt-2">
+                    <i class="fas fa-redo me-2"></i>
+                    Reintentar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video para cámara (oculto) -->
+    <video id="video" class="d-none" autoplay playsinline></video>
+    <canvas id="canvas" class="d-none"></canvas>
+
+    <!-- Overlay de flash -->
+    <div id="flash-overlay" class="flash-overlay"></div>
+
+    <!-- Audio elementos -->
+    <audio id="success-sound" preload="auto">
+        <source src="sounds/success.mp3" type="audio/mpeg">
+        <source src="sounds/success.wav" type="audio/wav">
+    </audio>
+    <audio id="error-sound" preload="auto">
+        <source src="sounds/error.mp3" type="audio/mpeg">
+        <source src="sounds/error.wav" type="audio/wav">
+    </audio>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript personalizado -->
+    <script src="js/scanner.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 

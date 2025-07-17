@@ -1,0 +1,24 @@
+{
+  "name": "ubicador-bultos",
+  "version": "1.0.0",
+  "description": "Webapp para ubicación de bultos en depósito",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["bultos", "ubicacion", "deposito", "scanner"],
+  "author": "Punto FTE",
+  "license": "MIT"
+} 
