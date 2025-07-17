@@ -82,8 +82,6 @@ function processScannedCode(code) {
         handlePackageCode(code);
     } else {
         showError('Error: código no reconocido');
-        playErrorSound();
-        flashScreen('error');
     }
     
     // Reenfoque
@@ -101,6 +99,18 @@ function handleLocationCode(code) {
     
     console.log('Ubicación detectada:', location);
     
+    // Verificar si es la misma ubicación
+    if (currentLocation === location) {
+        console.log('Misma ubicación, pero reproducir sonido de éxito');
+        showSuccess(`Ubicación ${location} confirmada`);
+        return;
+    }
+    
+    console.log('Cambiando ubicación de', currentLocation, 'a', location);
+    
+    // Guardar ubicación anterior para mensaje
+    const previousLocation = currentLocation;
+    
     currentLocation = location;
     ubicacionTexto.textContent = location;
     ubicacionActual.classList.remove('d-none');
@@ -109,7 +119,13 @@ function handleLocationCode(code) {
     // Cambiar mensaje principal
     mensajePrincipal.innerHTML = '<i class="fas fa-box me-2"></i><span>Escanea un bulto para ubicarlo</span>';
     
-    showSuccess(`Ubicación ${location} seleccionada`);
+    // Mensaje diferente para cambio de ubicación
+    const mensaje = previousLocation ? 
+        `Ubicación cambiada a ${location}` : 
+        `Ubicación ${location} seleccionada`;
+    
+    console.log('Ejecutando showSuccess con mensaje:', mensaje);
+    showSuccess(mensaje);
 }
 
 function handlePackageCode(code) {
@@ -125,8 +141,6 @@ function handlePackageCode(code) {
     
     if (!packageData) {
         showError('Error: formato de bulto inválido');
-        playErrorSound();
-        flashScreen('error');
         return;
     }
     
@@ -226,8 +240,6 @@ function handleAPISuccess(packageData) {
     
     const message = `Bulto ${packageData.bulto} de la guía ${packageData.guia}: Ubicado en ${packageData.ubicacion}`;
     showSuccess(message);
-    playSuccessSound();
-    flashScreen('success');
     
     // Actualizar estado de conexión
     updateConnectionStatus(true);
@@ -244,8 +256,6 @@ function handleAPIError(packageData) {
     } else {
         console.log('Máximo de reintentos alcanzado');
         showError('Error. No se pudo guardar la ubicación del bulto.');
-        playErrorSound();
-        flashScreen('error');
         retryCount = 0;
     }
 }
@@ -264,12 +274,14 @@ function updateConnectionStatus(connected) {
     isConnected = connected;
     
     if (connected) {
-        connectionStatus.innerHTML = '<i class="fas fa-wifi me-2"></i><span>Conectado</span>';
+        connectionStatus.innerHTML = '<i class="fas fa-wifi me-1"></i>';
         connectionStatus.className = 'connection-status';
+        connectionStatus.title = 'Conectado';
         retryBtn.classList.add('d-none');
     } else {
-        connectionStatus.innerHTML = '<i class="fas fa-wifi-slash me-2"></i><span>Sin conexión</span>';
+        connectionStatus.innerHTML = '<i class="fas fa-wifi-slash me-1"></i>';
         connectionStatus.className = 'connection-status offline';
+        connectionStatus.title = 'Sin conexión';
         retryBtn.classList.remove('d-none');
     }
 }
@@ -279,48 +291,94 @@ function handleRetry() {
     checkConnection();
 }
 
+// Variable para manejar timeout de notificaciones
+let notificationTimeout = null;
+
 function showSuccess(message) {
+    console.log('📱 Mostrando mensaje de éxito:', message);
+    clearPreviousNotification();
     statusText.textContent = message;
-    statusMessage.className = 'status-message success';
+    statusMessage.className = 'status-message success fade-in';
     statusMessage.classList.remove('d-none');
     
-    setTimeout(() => {
+    // Feedback sonoro y visual automático
+    console.log('📱 Ejecutando feedback de éxito...');
+    playSuccessSound();
+    flashScreen('success');
+    
+    notificationTimeout = setTimeout(() => {
         statusMessage.classList.add('d-none');
-    }, 3000);
+    }, 30000); // 30 segundos
 }
 
 function showError(message) {
+    console.log('📱 Mostrando mensaje de error:', message);
+    clearPreviousNotification();
     statusText.textContent = message;
-    statusMessage.className = 'status-message error shake';
+    statusMessage.className = 'status-message error shake fade-in';
     statusMessage.classList.remove('d-none');
     
-    setTimeout(() => {
+    // Feedback sonoro y visual automático
+    console.log('📱 Ejecutando feedback de error...');
+    playErrorSound();
+    flashScreen('error');
+    
+    notificationTimeout = setTimeout(() => {
         statusMessage.classList.add('d-none');
         statusMessage.classList.remove('shake');
-    }, 3000);
+    }, 30000); // 30 segundos
 }
 
 function showStatus(message, type = 'warning') {
+    clearPreviousNotification();
     statusText.textContent = message;
-    statusMessage.className = `status-message ${type}`;
+    statusMessage.className = `status-message ${type} fade-in`;
     statusMessage.classList.remove('d-none');
+    
+    // Para estados temporales como "Guardando...", usar tiempo más corto
+    if (type === 'warning' && message.includes('Guardando')) {
+        notificationTimeout = setTimeout(() => {
+            statusMessage.classList.add('d-none');
+        }, 5000); // 5 segundos para mensajes de carga
+    } else {
+        notificationTimeout = setTimeout(() => {
+            statusMessage.classList.add('d-none');
+        }, 30000); // 30 segundos para otros mensajes
+    }
+}
+
+function clearPreviousNotification() {
+    if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+        notificationTimeout = null;
+    }
 }
 
 function playSuccessSound() {
+    console.log('🔊 Reproduciendo sonido de éxito...');
     try {
+        // Detener cualquier sonido previo
+        successSound.pause();
         successSound.currentTime = 0;
-        successSound.play().catch(e => console.log('Error playing success sound:', e));
+        successSound.play()
+            .then(() => console.log('✅ Sonido de éxito reproducido'))
+            .catch(e => console.log('❌ Error playing success sound:', e));
     } catch (error) {
-        console.log('Success sound not available');
+        console.log('⚠️ Success sound not available:', error);
     }
 }
 
 function playErrorSound() {
+    console.log('🔊 Reproduciendo sonido de error...');
     try {
+        // Detener cualquier sonido previo
+        errorSound.pause();
         errorSound.currentTime = 0;
-        errorSound.play().catch(e => console.log('Error playing error sound:', e));
+        errorSound.play()
+            .then(() => console.log('✅ Sonido de error reproducido'))
+            .catch(e => console.log('❌ Error playing error sound:', e));
     } catch (error) {
-        console.log('Error sound not available');
+        console.log('⚠️ Error sound not available:', error);
     }
 }
 

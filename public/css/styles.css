@@ -11,109 +11,181 @@ body, html {
     padding: 0;
 }
 
-/* Header */
-h2 {
-    color: #2c3e50;
-    font-weight: 700;
-    margin-bottom: 1rem;
+/* Container principal */
+.container-fluid {
+    padding: 0;
+    position: relative;
 }
 
-/* Ubicación actual */
+/* Ubicación actual - MUCHO MÁS GRANDE */
+.ubicacion-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
 .ubicacion-display {
     background: linear-gradient(45deg, #007bff, #0056b3);
     color: white;
-    padding: 15px 25px;
+    padding: 20px 35px;
     border-radius: 15px;
-    font-size: 1.3rem;
-    font-weight: 600;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-    display: inline-block;
-    margin: 0 auto;
+    font-size: 1.8rem;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
     border: 3px solid white;
+    white-space: nowrap;
+    letter-spacing: 1px;
 }
 
-/* Mensaje principal */
+/* Mensaje principal - MÁS GRANDE */
+.mensaje-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    z-index: 90;
+}
+
 .mensaje-principal {
     background: #ffffff;
-    border: 2px solid #dee2e6;
-    border-radius: 12px;
-    padding: 20px;
-    font-size: 1.2rem;
-    font-weight: 500;
+    border: 3px solid #dee2e6;
+    border-radius: 15px;
+    padding: 35px;
+    font-size: 1.6rem;
+    font-weight: 600;
     color: #495057;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    line-height: 1.4;
 }
 
-/* Input de escaneo */
-#scanner-input {
-    border: 3px solid #007bff;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    padding: 15px;
-    font-weight: 500;
+/* Input de escaneo fijo en la parte inferior - SIN AZUL */
+.scanner-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: white;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.18);
+    border-top: 4px solid #6c757d;
+    z-index: 1000;
+    outline: none;
+}
+
+.scanner-container:focus {
+    outline: none;
+}
+
+#scanner-input {
+    border: 4px solid #6c757d;
+    border-radius: 12px 0 0 12px;
+    font-size: 1.5rem;
+    padding: 22px;
+    font-weight: 600;
+    background: white;
+    box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.1);
+    border-right: none;
+    outline: none;
 }
 
 #scanner-input:focus {
-    border-color: #0056b3;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #6c757d;
+    box-shadow: none;
+    outline: none !important;
+}
+
+#scanner-input:active {
+    outline: none !important;
+}
+
+/* Eliminar outline de todos los elementos */
+*, *:focus, *:active {
+    outline: none !important;
 }
 
 #camera-btn {
-    border: 3px solid #007bff;
-    border-left: none;
-    border-radius: 0 10px 10px 0;
-    padding: 15px 20px;
-    font-size: 1.2rem;
-    background: white;
-    color: #007bff;
+    border: 4px solid #6c757d;
+    border-radius: 0 12px 12px 0;
+    padding: 22px 30px;
+    font-size: 1.6rem;
+    background: #6c757d;
+    color: white;
     transition: all 0.3s ease;
+    border-left: none;
 }
 
 #camera-btn:hover {
-    background: #007bff;
-    color: white;
+    background: #5a6268;
+    border-color: #5a6268;
 }
 
-/* Mensajes de estado */
+/* Mensajes de estado - MÁS GRANDES */
+.status-container {
+    position: absolute;
+    bottom: 160px; /* Más espacio para el input más grande */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    z-index: 110;
+}
+
 .status-message {
-    padding: 15px 20px;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 15px 0;
+    padding: 25px 30px;
+    border-radius: 15px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
     transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    line-height: 1.3;
 }
 
 .status-message.success {
     background: #d4edda;
     color: #155724;
-    border: 2px solid #c3e6cb;
+    border: 4px solid #c3e6cb;
 }
 
 .status-message.error {
     background: #f8d7da;
     color: #721c24;
-    border: 2px solid #f5c6cb;
+    border: 4px solid #f5c6cb;
 }
 
 .status-message.warning {
     background: #fff3cd;
     color: #856404;
-    border: 2px solid #ffeaa7;
+    border: 4px solid #ffeaa7;
 }
 
-/* Indicador de conexión */
+/* Indicador de conexión en esquina superior derecha - MÁS GRANDE */
+.connection-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .connection-status {
-    font-size: 1rem;
-    font-weight: 500;
-    padding: 8px 15px;
-    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 12px 18px;
+    border-radius: 25px;
     background: #d4edda;
     color: #155724;
-    border: 2px solid #c3e6cb;
-    display: inline-block;
+    border: 3px solid #c3e6cb;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .connection-status.offline {
@@ -147,47 +219,63 @@ h2 {
     opacity: 1;
 }
 
-/* Botones */
+/* Botones - MÁS GRANDES */
 .btn {
-    font-weight: 600;
-    border-radius: 8px;
+    font-weight: 700;
+    border-radius: 12px;
     transition: all 0.3s ease;
-    border-width: 2px;
+    border-width: 3px;
+    font-size: 1.2rem;
+    padding: 15px 25px;
 }
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
 }
 
-/* Responsive para dispositivos pequeños */
+/* Responsive para dispositivos pequeños - TAMAÑOS AUMENTADOS */
 @media (max-width: 576px) {
-    .container-fluid {
-        padding: 15px;
-    }
-    
-    h2 {
-        font-size: 1.5rem;
-    }
-    
     .ubicacion-display {
-        font-size: 1.1rem;
-        padding: 12px 20px;
+        font-size: 1.5rem;
+        padding: 16px 25px;
+        letter-spacing: 0.5px;
     }
     
     .mensaje-principal {
-        font-size: 1rem;
-        padding: 15px;
+        font-size: 1.4rem;
+        padding: 28px;
+        line-height: 1.3;
+    }
+    
+    .scanner-container {
+        padding: 20px;
     }
     
     #scanner-input {
-        font-size: 1rem;
-        padding: 12px;
+        font-size: 1.3rem;
+        padding: 18px;
     }
     
     #camera-btn {
-        padding: 12px 15px;
+        padding: 18px 25px;
+        font-size: 1.4rem;
+    }
+    
+    .status-message {
+        font-size: 1.3rem;
+        padding: 22px 25px;
+        line-height: 1.2;
+    }
+    
+    .connection-status {
         font-size: 1rem;
+        padding: 10px 15px;
+    }
+    
+    .status-container {
+        bottom: 140px;
+        width: 95%;
     }
 }
 
