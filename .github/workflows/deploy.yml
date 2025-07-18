@@ -52,8 +52,8 @@ jobs:
           PORT=3001
           NODE_ENV=production
           MONGO_URI=mongodb://localhost:27017/ubicador
-          API_KEY_WRITE=ubi-write-2025-secure-key-789xyz
-          API_KEY_READ=ubi-read-2025-secure-key-456abc
+          API_KEY_WRITE=${{ secrets.API_KEY_WRITE }}
+          API_KEY_READ=${{ secrets.API_KEY_READ }}
           TZ=America/Argentina/Buenos_Aires
           ENVEOF
           
