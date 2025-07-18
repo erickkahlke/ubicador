@@ -14,7 +14,7 @@ fi
 
 # Configurar remote origin (se actualizará con el repo real)
 git remote remove origin 2>/dev/null || true
-git remote add origin https://github.com/TU-USUARIO/ubicador-bultos.git
+git remote add origin https://github.com/erickkahlke/ubicador.git
 
 # Configurar Git para production
 git config user.name "GitHub Actions"

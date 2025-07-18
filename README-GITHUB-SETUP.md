@@ -40,13 +40,13 @@ cat ~/.ssh/github_actions_key
 
 # Actualizar URL del repositorio
 cd /var/www/html/via/ubicador
-git remote set-url origin https://github.com/TU-USUARIO/ubicador-bultos.git
+git remote set-url origin https://github.com/erickkahlke/ubicador.git
 ```
 
 ### 5️⃣ Push inicial a GitHub
 ```bash
 # En tu máquina local
-git remote add origin https://github.com/TU-USUARIO/ubicador-bultos.git
+git remote add origin https://github.com/erickkahlke/ubicador.git
 git branch -M main
 git push -u origin main
 ```
@@ -71,7 +71,7 @@ git push -u origin main
 ## 📱 URLs importantes
 - **Producción**: http://149.50.139.142/via/ubicador/
 - **API Health**: http://149.50.139.142/via/ubicador/api/health
-- **GitHub Actions**: https://github.com/TU-USUARIO/ubicador-bultos/actions
+- **GitHub Actions**: https://github.com/erickkahlke/ubicador/actions
 
 ## 🚨 Troubleshooting
 - **Action falla**: Revisar logs en GitHub Actions tab
