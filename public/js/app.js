@@ -3,10 +3,12 @@ let currentLocation = null;
 let isConnected = true;
 let retryCount = 0;
 const MAX_RETRIES = 3;
+let audioInitialized = false;
 
 // Elementos del DOM
 const scannerInput = document.getElementById('scanner-input');
 const cameraBtn = document.getElementById('camera-btn');
+const closeIntegratedBtn = document.getElementById('close-integrated-scanner');
 const ubicacionActual = document.getElementById('ubicacion-actual');
 const ubicacionTexto = document.getElementById('ubicacion-texto');
 const mensajePrincipal = document.getElementById('mensaje-principal');
@@ -26,11 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     console.log('Inicializando Ubicador de Bultos...');
     
+    // Inicializar audio en primera interacción
+    initializeAudioOnFirstTouch();
+    
     // Event listeners
     scannerInput.addEventListener('keypress', handleKeyPress);
     scannerInput.addEventListener('input', handleInput);
     cameraBtn.addEventListener('click', activateCamera);
     retryBtn.addEventListener('click', handleRetry);
+    
+    // Focus lock: mantener focus siempre en input cuando no está en modo scanner
+    initializeFocusLock();
     
     // Focus en input
     focusInput();
@@ -387,13 +395,116 @@ function flashScreen(type) {
     
     setTimeout(() => {
         flashOverlay.classList.remove('show');
-    }, 200);
+    }, 500); // Duración más larga para mejor feedback visual
 }
 
 function activateCamera() {
-    // Implementación básica del escáner con cámara
-    // En un entorno real se usaría una librería como ZXing o QuaggaJS
-    showStatus('Función de cámara en desarrollo', 'warning');
+    console.log('📱 Activando cámara scanner...');
+    if (typeof activateScanner === 'function') {
+        activateScanner();
+    } else {
+        console.error('Scanner no disponible');
+        showError('Scanner de cámara no disponible');
+    }
+}
+
+// Inicializar audio para móviles (requiere interacción del usuario)
+function initializeAudioOnFirstTouch() {
+    const initAudio = () => {
+        if (!audioInitialized) {
+            console.log('🔊 Inicializando audio para móviles...');
+            
+            // Intentar reproducir y pausar inmediatamente para "activar" el audio
+            const sounds = [successSound, errorSound];
+            sounds.forEach(audio => {
+                if (audio) {
+                    audio.volume = 0.1; // Volumen muy bajo para esta prueba
+                    audio.play().then(() => {
+                        audio.pause();
+                        audio.volume = 1; // Restaurar volumen
+                        audio.currentTime = 0;
+                        console.log('✅ Audio inicializado:', audio.id);
+                    }).catch(e => {
+                        console.log('ℹ️ Audio no pudo inicializarse:', audio.id);
+                    });
+                }
+            });
+            
+            audioInitialized = true;
+            
+            // Remover listeners después de la primera inicialización
+            document.removeEventListener('touchstart', initAudio);
+            document.removeEventListener('click', initAudio);
+            document.removeEventListener('keydown', initAudio);
+        }
+    };
+    
+    // Listeners para la primera interacción
+    document.addEventListener('touchstart', initAudio, { once: true });
+    document.addEventListener('click', initAudio, { once: true });
+    document.addEventListener('keydown', initAudio, { once: true });
+}
+
+// Focus Lock: Mantener focus siempre en el input cuando no está en modo scanner
+function initializeFocusLock() {
+    console.log('🔒 Inicializando focus lock en input...');
+    
+    // Detectar cuando el focus sale del input
+    scannerInput.addEventListener('blur', (e) => {
+        // Solo re-enfocar si NO estamos en modo scanner
+        if (!document.body.classList.contains('scanner-active')) {
+            console.log('🎯 Focus perdido, devolviendo a input...');
+            setTimeout(() => {
+                if (!document.body.classList.contains('scanner-active')) {
+                    scannerInput.focus();
+                }
+            }, 10);
+        }
+    });
+    
+    // Event listener global para capturar clicks fuera del input
+    document.addEventListener('click', (e) => {
+        // IMPORTANTE: No interferir si estamos en modo scanner
+        if (document.body.classList.contains('scanner-active')) {
+            console.log('🔍 Modo scanner activo - permitiendo clicks libremente');
+            return;
+        }
+        
+        // Solo actuar si NO estamos en modo scanner y no se clickeó elementos permitidos
+        if (e.target !== scannerInput && 
+            e.target !== cameraBtn &&
+            e.target !== closeIntegratedBtn &&
+            !cameraBtn.contains(e.target) &&
+            !closeIntegratedBtn?.contains(e.target)) {
+            
+            console.log('🎯 Click detectado fuera del input, devolviendo focus...');
+            setTimeout(() => {
+                if (!document.body.classList.contains('scanner-active')) {
+                    scannerInput.focus();
+                }
+            }, 10);
+        }
+    });
+    
+    // Event listener para teclas de navegación (Tab, Shift+Tab, etc.)
+    document.addEventListener('keydown', (e) => {
+        // Solo actuar si no estamos en modo scanner
+        if (!document.body.classList.contains('scanner-active')) {
+            if (e.key === 'Tab' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault(); // Prevenir navegación con Tab
+                scannerInput.focus();
+                console.log('🎯 Navegación interceptada, manteniendo focus en input');
+            }
+        }
+    });
+    
+    // Forzar focus periódicamente como respaldo
+    setInterval(() => {
+        if (!document.body.classList.contains('scanner-active') && 
+            document.activeElement !== scannerInput) {
+            scannerInput.focus();
+        }
+    }, 1000);
 }
 
 // Verificar conexión periódicamente

@@ -1,14 +1,41 @@
-/* Configuración general */
+/* Configuración general - ANTI-ZOOM UNIVERSAL */
 * {
     font-family: 'Cairo', sans-serif;
+    /* Prevenir zoom en TODO elemento */
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    /* Prevenir scroll accidental */
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: auto !important;
 }
 
 body, html {
     height: 100vh;
-    overflow: hidden; /* Sin scroll para modo kiosk */
+    width: 100vw;
+    overflow: hidden !important; /* Sin scroll para modo kiosk */
+    position: fixed; /* Prevenir scroll agresivamente */
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     margin: 0;
     padding: 0;
+    /* Prevenir zoom SUPER agresivamente */
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    /* Prevenir zoom en Safari/iOS */
+    -webkit-text-size-adjust: 100% !important;
+    -ms-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    /* Bloquear scrolling */
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Container principal */
@@ -84,13 +111,18 @@ body, html {
 #scanner-input {
     border: 4px solid #6c757d;
     border-radius: 12px 0 0 12px;
-    font-size: 1.5rem;
+    font-size: 16px; /* 16px mínimo para prevenir zoom en iOS */
     padding: 22px;
     font-weight: 600;
     background: white;
     box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.1);
     border-right: none;
     outline: none;
+    /* Propiedades anti-zoom específicas para input */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    transform: translateZ(0); /* Acelerar hardware */
 }
 
 #scanner-input:focus {
@@ -106,6 +138,44 @@ body, html {
 /* Eliminar outline de todos los elementos */
 *, *:focus, *:active {
     outline: none !important;
+}
+
+/* Prevenir zoom táctil */
+html {
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Permitir selección de texto en elementos importantes */
+input, textarea, .status-message, .ubicacion-display {
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    /* Prevenir zoom en elementos de entrada */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* Input group para mantener botón al lado del input */
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+#scanner-input {
+    flex: 1;
 }
 
 #camera-btn {
@@ -124,15 +194,41 @@ body, html {
     border-color: #5a6268;
 }
 
-/* Mensajes de estado - MÁS GRANDES */
+/* Mensajes de estado - POSICIÓN FIJA DEBAJO DE UBICACIÓN */
 .status-container {
-    position: absolute;
-    bottom: 160px; /* Más espacio para el input más grande */
+    position: fixed; /* Posición fija en viewport */
+    top: 110px; /* Siempre debajo de ubicación actual */
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 500px;
-    z-index: 110;
+    z-index: 1100; /* Alto para estar sobre todo */
+    transition: all 0.3s ease;
+}
+
+/* En modo scanner: mover notificaciones DEBAJO del botón X */
+.scanner-active .status-container {
+    /* Mover más abajo para no interferir con botón X */
+    top: 170px; /* Más abajo del botón X */
+    z-index: 1500; /* Menor que el botón X (99999) */
+    /* Evitar interferir con la zona del botón X */
+    pointer-events: none; /* No interceptar clicks */
+}
+
+/* Pero permitir clicks en el contenido de las notificaciones */
+.scanner-active .status-container .status-message {
+    pointer-events: auto;
+    margin-top: 10px; /* Separación adicional */
+}
+
+/* Ocultar input-group cuando scanner está activo */
+.scanner-active .input-group {
+    display: none;
+}
+
+/* Ajustar padding del scanner-container cuando está activo */
+.scanner-active .scanner-container {
+    padding: 15px 25px;
 }
 
 .status-message {
@@ -194,7 +290,7 @@ body, html {
     border-color: #f5c6cb;
 }
 
-/* Flash overlay para feedback visual */
+/* Flash overlay para feedback visual - MÁS NOTORIO */
 .flash-overlay {
     position: fixed;
     top: 0;
@@ -204,19 +300,32 @@ body, html {
     pointer-events: none;
     z-index: 9999;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .flash-overlay.success {
-    background: rgba(40, 167, 69, 0.3);
+    background: rgba(40, 167, 69, 0.8); /* Más opaco */
+    box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.5); /* Efecto de brillo */
 }
 
 .flash-overlay.error {
-    background: rgba(220, 53, 69, 0.3);
+    background: rgba(220, 53, 69, 0.8); /* Más opaco */
+    box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.3); /* Efecto de brillo */
 }
 
 .flash-overlay.show {
     opacity: 1;
+    animation: flashPulse 0.4s ease-in-out;
+}
+
+/* Animación de pulso para el flash */
+@keyframes flashPulse {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
 }
 
 /* Botones - MÁS GRANDES */
@@ -305,7 +414,237 @@ body, html {
     animation: shake 0.5s ease;
 }
 
+/* Modal de Cámara Scanner */
+.scanner-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scanner-modal-content {
+    width: 90%;
+    max-width: 500px;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.scanner-header {
+    background: #6c757d;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: flex-end; /* Alinear botón X a la derecha */
+    align-items: center;
+}
+
+.scanner-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.scanner-area {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    background: #000;
+    overflow: hidden;
+}
+
+.scanner-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.scanner-line {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    animation: scanLine 2s ease-in-out infinite;
+}
+
+@keyframes scanLine {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(-50%);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateY(-30px);
+    }
+}
+
+.scanner-footer {
+    background: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+}
+
+.scanner-footer .btn {
+    font-size: 1.1rem;
+    padding: 12px 20px;
+    font-weight: 600;
+}
+
+/* Estilos para QuaggaJS */
+#scanner-container {
+    position: relative;
+}
+
+#scanner-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#scanner-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Responsive para scanner */
+@media (max-width: 576px) {
+    .scanner-modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .scanner-area {
+        height: 280px;
+    }
+    
+    .scanner-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .scanner-footer .btn {
+        font-size: 1rem;
+        padding: 10px 15px;
+        margin: 5px;
+    }
+}
+
 /* Ocultar elementos por defecto */
 .d-none {
     display: none !important;
+}
+
+/* Scanner integrado */
+.integrated-scanner {
+    margin-top: 20px;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.integrated-scanner .scanner-header {
+    display: flex;
+    justify-content: flex-end; /* Botón X a la derecha */
+    align-items: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.8);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999; /* Z-index muy alto para estar sobre todo */
+    pointer-events: auto; /* Asegurar que capture eventos */
+}
+
+/* Asegurar que el botón de cerrar esté clickeable - PRIORIDAD ABSOLUTA */
+.integrated-scanner .scanner-header button {
+    z-index: 99999 !important; /* Prioridad máxima */
+    position: relative !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    /* Asegurar que esté en su propia capa de render */
+    transform: translateZ(0);
+    will-change: transform;
+    /* Área clickeable más grande */
+    padding: 10px 15px !important;
+    min-width: 50px;
+    min-height: 50px;
+}
+
+/* Evitar que otros elementos interfieran con el botón X */
+.integrated-scanner .scanner-header button:hover {
+    background-color: rgba(255,255,255,0.2) !important;
+}
+
+/* Área de exclusión alrededor del botón X */
+.integrated-scanner .scanner-header {
+    /* Asegurar que el header tenga prioridad sobre notificaciones */
+    z-index: 50000 !important;
+}
+
+.integrated-scanner .scanner-area {
+    position: relative;
+    height: 400px;
+    background: #000;
+}
+
+.integrated-scanner .scanner-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0;
+}
+
+.integrated-scanner .scanner-viewport video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.integrated-scanner .scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 500;
+}
+
+.integrated-scanner .scanner-line {
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    top: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00ff00, transparent);
+    animation: scanLine 2s ease-in-out infinite;
+    transform: translateY(-50%);
+}
+
+#flash-btn:hover, #close-integrated-scanner:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
 } 

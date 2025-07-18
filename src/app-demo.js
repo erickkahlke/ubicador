@@ -212,22 +212,55 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
+// Función para obtener IP local
+function getLocalIP() {
+    const { networkInterfaces } = require('os');
+    const nets = networkInterfaces();
+    const results = {};
+
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+            if (net.family === 'IPv4' && !net.internal) {
+                if (!results[name]) {
+                    results[name] = [];
+                }
+                results[name].push(net.address);
+            }
+        }
+    }
+    
+    // Devolver la primera IP encontrada
+    for (const name of Object.keys(results)) {
+        if (results[name].length > 0) {
+            return results[name][0];
+        }
+    }
+    return 'localhost';
+}
+
+// Iniciar servidor en todas las interfaces (0.0.0.0)
+app.listen(PORT, '0.0.0.0', () => {
+    const localIP = getLocalIP();
     console.log('🎉 ========================================');
     console.log('🚀 SERVIDOR DEMO UBICADOR DE BULTOS');
     console.log('🎉 ========================================');
     console.log(`📡 Puerto: ${PORT}`);
-    console.log(`🌎 URL: http://localhost:${PORT}`);
+    console.log(`🌎 URL Local: http://localhost:${PORT}`);
+    console.log(`🌐 URL Red Local: http://${localIP}:${PORT}`);
     console.log(`🔧 Modo: DEMO (sin MongoDB)`);
     console.log(`⏰ Zona horaria: ${process.env.TZ}`);
     console.log('');
     console.log('📋 Endpoints disponibles:');
-    console.log(`   • Frontend: http://localhost:${PORT}/`);
-    console.log(`   • Health: http://localhost:${PORT}/api/health`);
-    console.log(`   • Demo Storage: http://localhost:${PORT}/api/demo/storage`);
+    console.log(`   • Frontend Local: http://localhost:${PORT}/`);
+    console.log(`   • Frontend Red: http://${localIP}:${PORT}/`);
+    console.log(`   • Health: http://${localIP}:${PORT}/api/health`);
+    console.log(`   • Demo Storage: http://${localIP}:${PORT}/api/demo/storage`);
     console.log('');
-    console.log('✅ ¡Listo para probar!');
+    console.log('📱 Para acceder desde otros dispositivos usa:');
+    console.log(`   http://${localIP}:${PORT}`);
+    console.log('');
+    console.log('✅ ¡Listo para probar desde cualquier dispositivo!');
     console.log('🎉 ========================================');
 });
 

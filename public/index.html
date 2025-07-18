@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Ubicador de Bultos</title>
     
     <!-- Bootstrap CSS -->
@@ -48,27 +52,49 @@
                 <i class="fas fa-wifi me-1"></i>
             </div>
             <button id="retry-btn" class="btn btn-sm btn-warning d-none">
-                <i class="fas fa-redo"></i>
+                <i class="fas fa-sync-alt me-1"></i>
+                Reintentar
             </button>
         </div>
 
-        <!-- Input de escaneo fijo en la parte inferior -->
-        <div class="scanner-container">
-            <div class="input-group input-group-lg">
-                <input 
-                    type="text" 
-                    id="scanner-input" 
-                    class="form-control text-center" 
-                    placeholder="Escanear código..." 
-                    autofocus
-                    autocomplete="off"
-                >
-                <button class="btn btn-primary" type="button" id="camera-btn">
-                    <i class="fas fa-camera"></i>
-                </button>
+        <!-- Contenedor principal centrado -->
+        <div class="main-container">
+            <!-- Campo de entrada con icono de escaner -->
+            <div class="scanner-container">
+                <div class="input-group">
+                    <input type="text" 
+                           id="scanner-input" 
+                           class="form-control scanner-input" 
+                           placeholder="Escanear o ingresar código..."
+                           autocomplete="off"
+                           autocapitalize="off"
+                           spellcheck="false">
+                    <button id="camera-btn" class="btn camera-btn" title="Activar cámara">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                
+                <!-- Área de scanner integrada (oculta por defecto) -->
+                <div id="integrated-scanner" class="integrated-scanner d-none">
+                    <div class="scanner-header">
+                        <button id="close-integrated-scanner" class="btn btn-outline-light" title="Cerrar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="scanner-area">
+                        <div id="integrated-scanner-container" class="scanner-viewport">
+                            <!-- Scanner se renderiza aquí -->
+                        </div>
+                        <div class="scanner-overlay">
+                            <div class="scanner-line"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+
 
     <!-- Video para cámara (oculto) -->
     <video id="video" class="d-none" autoplay playsinline></video>
@@ -77,16 +103,24 @@
     <!-- Overlay de flash -->
     <div id="flash-overlay" class="flash-overlay"></div>
 
-    <!-- Audio elementos -->
-    <audio id="success-sound" preload="auto">
+    <!-- Audio elementos optimizados para móviles -->
+    <audio id="success-sound" preload="auto" crossorigin="anonymous">
         <source src="sounds/success.mp3" type="audio/mpeg">
         <source src="sounds/success.wav" type="audio/wav">
+        <source src="sounds/success.ogg" type="audio/ogg">
     </audio>
-    <audio id="error-sound" preload="auto">
+    <audio id="error-sound" preload="auto" crossorigin="anonymous">
         <source src="sounds/error.mp3" type="audio/mpeg">
         <source src="sounds/error.wav" type="audio/wav">
+        <source src="sounds/error.ogg" type="audio/ogg">
     </audio>
 
+    <!-- QuaggaJS para escaneo de códigos de barras -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    
+    <!-- Html5-QrCode para escaneo QR y códigos de barras -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
