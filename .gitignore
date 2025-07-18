@@ -101,4 +101,21 @@ data/
 
 # Production build files
 build/
-dist/ 
+dist/ # Archivos de deploy temporal
+ubicador-deploy.tar.gz
+generate-icons.html
+DEPLOYMENT-GUIDE.md
+
+# Logs
+logs/*.log
+*.log
+
+# Cache de PM2
+.pm2/
+
+# Node modules
+node_modules/
+
+# Archivos temporales
+/tmp/
+.tmp

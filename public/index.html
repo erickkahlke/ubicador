@@ -9,6 +9,24 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>Ubicador de Bultos</title>
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007bff">
+    <meta name="msapplication-TileColor" content="#007bff">
+    <meta name="msapplication-config" content="browserconfig.xml">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+    <link rel="mask-icon" href="icons/icon.svg" color="#007bff">
+    
+    <!-- iOS specific meta tags -->
+    <meta name="apple-mobile-web-app-title" content="Ubicador">
+    <link rel="apple-touch-startup-image" href="icons/icon-512x512.png">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -127,5 +145,97 @@
     <!-- JavaScript personalizado -->
     <script src="js/scanner.js"></script>
     <script src="js/app.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registrado exitosamente:', registration.scope);
+                        
+                        // Verificar actualizaciones
+                        registration.addEventListener('updatefound', function() {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', function() {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nueva versión disponible
+                                    if (confirm('Nueva versión disponible. ¿Recargar la aplicación?')) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar ServiceWorker:', error);
+                    });
+            });
+        }
+
+        // Prevenir el comportamiento de instalación automática
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA: Evento beforeinstallprompt disparado');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Opcional: Mostrar botón de instalación personalizado
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Crear botón de instalación flotante
+            const installBtn = document.createElement('button');
+            installBtn.innerHTML = '<i class="fas fa-download me-1"></i>Instalar App';
+            installBtn.className = 'btn btn-success position-fixed';
+            installBtn.style.cssText = `
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+                border-radius: 25px;
+                padding: 10px 20px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                font-size: 14px;
+            `;
+            
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`PWA: Usuario ${outcome} la instalación`);
+                    deferredPrompt = null;
+                    installBtn.remove();
+                }
+            });
+            
+            document.body.appendChild(installBtn);
+            
+            // Auto-ocultar después de 10 segundos
+            setTimeout(() => {
+                if (installBtn.parentNode) {
+                    installBtn.style.opacity = '0.5';
+                }
+            }, 10000);
+        }
+
+        // Detectar cuando la PWA se instala
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA: Aplicación instalada exitosamente');
+            // Opcional: Analytics o notificación
+        });
+
+        // Manejar orientación para PWA
+        if (screen.orientation) {
+            screen.orientation.addEventListener('change', function() {
+                // Forzar recálculo del layout si es necesario
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            });
+        }
+    </script>
 </body>
 </html> 
