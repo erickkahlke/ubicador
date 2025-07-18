@@ -3,8 +3,6 @@ name: Deploy to Production
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   deploy:
@@ -23,11 +21,7 @@ jobs:
     - name: Install dependencies
       run: npm ci --only=production
       
-    - name: Run tests (if any)
-      run: npm test --if-present
-      
     - name: Deploy to production server
-      if: github.ref == 'refs/heads/main'
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -40,11 +34,8 @@ jobs:
           # Stop the application
           pm2 stop ubicador || true
           
-          # Backup current version
-          cp -r . /tmp/ubicador-backup-$(date +%Y%m%d-%H%M%S) || true
-          
           # Pull latest changes
-          git fetch origin
+          git fetch origin main
           git reset --hard origin/main
           
           # Install/update dependencies
@@ -54,6 +45,19 @@ jobs:
           sed -i 's|/api/ubicaciones|/via/ubicador/api/ubicaciones|g' public/js/app.js
           sed -i 's|/api/health|/via/ubicador/api/health|g' public/js/app.js
           sed -i 's|/sw.js|/via/ubicador/sw.js|g' public/index.html
+          
+          # Ensure .env exists with production settings
+          cat > .env << 'ENVEOF'
+          PORT=3001
+          NODE_ENV=production
+          MONGO_URI=mongodb://localhost:27017/ubicador
+          API_KEY_WRITE=ubi-write-2025-secure-key-789xyz
+          API_KEY_READ=ubi-read-2025-secure-key-456abc
+          TZ=America/Argentina/Buenos_Aires
+          ENVEOF
+          
+          # Ensure logs directory exists
+          mkdir -p logs
           
           # Restart application
           pm2 start ubicador
